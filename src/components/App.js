@@ -5,19 +5,24 @@ import {
   loadAccount,
   loadProvider,
   loadNetwork,
-  loadHagesToken,
+  loadTokens,
+  loadExchange,
 } from "../store/interactions";
 
 function App() {
   const dispatch = useDispatch();
 
   const loadBlockchainData = async () => {
-    await loadAccount(dispatch);
-
     const provider = await loadProvider(dispatch);
     const chainId = await loadNetwork(provider, dispatch);
 
-    await loadHagesToken(provider, config[chainId].hages.address, dispatch);
+    await loadAccount(provider, dispatch);
+
+    const hages = config[chainId].hages;
+    const mETH = config[chainId].mETH;
+    await loadTokens(provider, [hages.address, mETH.address], dispatch);
+
+    await loadExchange(provider, config[chainId].exchange.address, dispatch);
   };
 
   useEffect(() => {
