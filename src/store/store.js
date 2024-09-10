@@ -9,6 +9,19 @@ const store = configureStore({
     token: tokenReducer,
     exchange: exchangeReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these field paths in all actions
+        ignoredActionPaths: ["payload"],
+        // Ignore these paths in the state
+        ignoredPaths: [
+          "provider.connection",
+          "token.contracts",
+          "exchange.contracts",
+        ],
+      },
+    }),
 });
 
 export default store;

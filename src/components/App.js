@@ -9,6 +9,8 @@ import {
   loadExchange,
 } from "../store/interactions";
 
+import Navbar from "./Navbar";
+
 function App() {
   const dispatch = useDispatch();
 
@@ -16,7 +18,13 @@ function App() {
     const provider = await loadProvider(dispatch);
     const chainId = await loadNetwork(provider, dispatch);
 
-    await loadAccount(provider, dispatch);
+    window.ethereum.on("chainChanged", () => {
+      window.location.reload();
+    });
+
+    window.ethereum.on("accountsChanged", () => {
+      loadAccount(provider, dispatch);
+    });
 
     const hages = config[chainId].hages;
     const mETH = config[chainId].mETH;
@@ -31,7 +39,7 @@ function App() {
 
   return (
     <div>
-      {/* Navbar */}
+      <Navbar />
 
       <main className="exchange grid">
         <section className="exchange__section--left grid">
