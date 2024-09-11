@@ -10,6 +10,7 @@ import {
 } from "../store/interactions";
 
 import Navbar from "./Navbar";
+import Markets from "./Markets";
 
 function App() {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ function App() {
 
     const hages = config[chainId].hages;
     const mETH = config[chainId].mETH;
+
     await loadTokens(provider, [hages.address, mETH.address], dispatch);
 
     await loadExchange(provider, config[chainId].exchange.address, dispatch);
@@ -43,7 +45,7 @@ function App() {
 
       <main className="exchange grid">
         <section className="exchange__section--left grid">
-          {/* Markets */}
+          <Markets />
 
           {/* Balance */}
 

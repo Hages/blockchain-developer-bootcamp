@@ -8,8 +8,12 @@ export const tokenSlice = createSlice({
       return {
         ...state,
         loaded: true,
-        contracts: [...state.contracts, action.payload.token],
-        symbols: [...state.symbols, action.payload.symbol],
+        contracts: action.payload.append
+          ? [...state.contracts, action.payload.token]
+          : [action.payload.token],
+        symbols: action.payload.append
+          ? [...state.symbols, action.payload.symbol]
+          : [action.payload.symbol],
       };
     },
   },

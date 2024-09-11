@@ -42,11 +42,11 @@ export const loadTokens = async (provider, addresses, dispatch) => {
   let token, symbol;
   token = new ethers.Contract(addresses[0], TOKEN_ABI, provider);
   symbol = await token.symbol();
-  dispatch(tokenLoaded({ token, symbol }));
+  dispatch(tokenLoaded({ token, symbol, append: false }));
 
   token = new ethers.Contract(addresses[1], TOKEN_ABI, provider);
   symbol = await token.symbol();
-  dispatch(tokenLoaded({ token, symbol }));
+  dispatch(tokenLoaded({ token, symbol, append: true }));
 
   return token;
 };
