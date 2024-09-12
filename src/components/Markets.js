@@ -17,7 +17,10 @@ const Markets = () => {
         <h2>Select Market</h2>
       </div>
 
-      {chainId && config[chainId] ? (
+      {chainId &&
+      config[chainId] &&
+      config[chainId].hages &&
+      config[chainId].mETH ? (
         <select name="markets" id="markets" onChange={marketHandler}>
           <option
             value={`${config[chainId].hages.address},${config[chainId].mETH.address}`}

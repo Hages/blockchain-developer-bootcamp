@@ -33,7 +33,6 @@ const Navbar = () => {
 
       <div className="exchange__header--networks flex">
         <img src={eth} alt="ETH Logo" className="Eth Logo" />
-        {chainId}
         {chainId && (
           <select
             name="networks"
@@ -45,7 +44,7 @@ const Navbar = () => {
               Select Network
             </option>
             <option value="0x7A69">Localhost</option>
-            <option value="0xE705">Linea Sepolia</option>
+            <option value="0xe705">Linea Sepolia</option>
           </select>
         )}
       </div>

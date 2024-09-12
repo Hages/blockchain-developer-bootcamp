@@ -6,7 +6,7 @@ import exchangeReducer from "./reducers/exchangeSlice";
 const store = configureStore({
   reducer: {
     provider: providerReducer,
-    token: tokenReducer,
+    tokens: tokenReducer,
     exchange: exchangeReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -17,8 +17,9 @@ const store = configureStore({
         // Ignore these paths in the state
         ignoredPaths: [
           "provider.connection",
-          "token.contracts",
+          "tokens.contracts",
           "exchange.contracts",
+          "exchange.events",
         ],
       },
     }),

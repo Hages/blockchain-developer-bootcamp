@@ -7,8 +7,14 @@ import {
   accountLoaded,
   etherBalanceLoaded,
 } from "./reducers/providerSlice";
-import { tokenLoaded } from "./reducers/tokenSlice";
-import { exchangeLoaded } from "./reducers/exchangeSlice";
+import { tokenLoaded, tokenBalanceLoaded } from "./reducers/tokenSlice";
+import {
+  exchangeLoaded,
+  exchangeTokenBalanceLoaded,
+  transferRequest,
+  transferSuccess,
+  transferFail,
+} from "./reducers/exchangeSlice";
 
 export const loadProvider = async (dispatch) => {
   const connection = new ethers.providers.Web3Provider(window.ethereum);
@@ -56,4 +62,64 @@ export const loadExchange = async (provider, address, dispatch) => {
   dispatch(exchangeLoaded({ exchange }));
 
   return exchange;
+};
+
+export const subscribeToEvents = (exchange, dispatch) => {
+  exchange.on("Deposit", (_token, _user, _amount, _balance, event) => {
+    dispatch(transferSuccess({ event }));
+  });
+};
+
+export const loadBalances = async (exchange, tokens, account, dispatch) => {
+  let balance = ethers.utils.formatUnits(
+    await tokens[0].balanceOf(account),
+    18
+  );
+  dispatch(tokenBalanceLoaded({ balance, append: false }));
+
+  balance = ethers.utils.formatUnits(
+    await exchange.balanceOf(tokens[0].address, account),
+    18
+  );
+  dispatch(exchangeTokenBalanceLoaded({ balance, append: false }));
+
+  balance = ethers.utils.formatUnits(await tokens[1].balanceOf(account), 18);
+  dispatch(tokenBalanceLoaded({ balance, append: true }));
+
+  balance = ethers.utils.formatUnits(
+    await exchange.balanceOf(tokens[1].address, account),
+    18
+  );
+  dispatch(exchangeTokenBalanceLoaded({ balance, append: true }));
+};
+
+export const transferTokens = async (
+  provider,
+  exchange,
+  transferType,
+  token,
+  amount,
+  dispatch
+) => {
+  let transaction;
+
+  dispatch(transferRequest());
+
+  try {
+    const signer = await provider.getSigner();
+    const amountToTransfer = ethers.utils.parseUnits(amount.toString(), 18);
+
+    transaction = await token
+      .connect(signer)
+      .approve(exchange.address, amountToTransfer);
+    await transaction.wait();
+
+    transaction = await exchange
+      .connect(signer)
+      .depositToken(token.address, amountToTransfer);
+    await transaction.wait();
+  } catch (error) {
+    console.log(error);
+    dispatch(transferFail());
+  }
 };

@@ -7,10 +7,12 @@ import {
   loadNetwork,
   loadTokens,
   loadExchange,
+  subscribeToEvents,
 } from "../store/interactions";
 
 import Navbar from "./Navbar";
 import Markets from "./Markets";
+import Balance from "./Balance";
 
 function App() {
   const dispatch = useDispatch();
@@ -30,9 +32,15 @@ function App() {
     const hages = config[chainId].hages;
     const mETH = config[chainId].mETH;
 
-    await loadTokens(provider, [hages.address, mETH.address], dispatch);
+    if (hages && mETH)
+      await loadTokens(provider, [hages.address, mETH.address], dispatch);
 
-    await loadExchange(provider, config[chainId].exchange.address, dispatch);
+    const exchangeConfig = config[chainId].exchange;
+    let exchange;
+    if (exchangeConfig)
+      exchange = await loadExchange(provider, exchangeConfig.address, dispatch);
+
+    subscribeToEvents(exchange, dispatch);
   };
 
   useEffect(() => {
@@ -47,7 +55,7 @@ function App() {
         <section className="exchange__section--left grid">
           <Markets />
 
-          {/* Balance */}
+          <Balance />
 
           {/* Order */}
         </section>
