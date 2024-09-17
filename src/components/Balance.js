@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loadBalances, transferTokens } from "../store/interactions";
 import hages from "../assets/hages.svg";
+import eth from "../assets/eth.svg";
 
 const Balance = () => {
+  const [isDeposit, setIsDeposit] = useState(true);
   const [token0Amt, setToken0Amt] = useState(0);
+  const [token1Amt, setToken1Amt] = useState(0);
+  const depositRef = useRef(null);
+  const withdrawRef = useRef(null);
   const dispatch = useDispatch();
   const symbols = useSelector((state) => state.tokens.symbols);
   const exchange = useSelector((state) => state.exchange.contracts);
@@ -18,12 +23,13 @@ const Balance = () => {
   );
 
   useEffect(() => {
-    if (exchange && tokens && account)
+    if (exchange && tokens && tokens.length > 1 && account)
       loadBalances(exchange, tokens, account, dispatch);
   }, [exchange, tokens, account, dispatch, transferInProgress]);
 
   const amountHandler = async (e, token) => {
     if (token.address === tokens[0].address) setToken0Amt(e.target.value);
+    if (token.address === tokens[1].address) setToken1Amt(e.target.value);
   };
 
   const depositHandler = async (e, token) => {
@@ -32,6 +38,16 @@ const Balance = () => {
       transferTokens(provider, exchange, "deposit", token, token0Amt, dispatch);
       setToken0Amt(0);
     }
+    if (token.address === tokens[1].address) {
+      transferTokens(provider, exchange, "deposit", token, token1Amt, dispatch);
+      setToken1Amt(0);
+    }
+  };
+
+  const tabHandler = (e) => {
+    depositRef.current.className = withdrawRef.current.className = "tab";
+    e.target.className = "tab tab--active";
+    setIsDeposit(e.target.className === depositRef.current.className);
   };
 
   return (
@@ -39,8 +55,16 @@ const Balance = () => {
       <div className="component__header flex-between">
         <h2>Balance</h2>
         <div className="tabs">
-          <button className="tab tab--active">Deposit</button>
-          <button className="tab">Withdraw</button>
+          <button
+            onClick={tabHandler}
+            ref={depositRef}
+            className="tab tab--active"
+          >
+            Deposit
+          </button>
+          <button onClick={tabHandler} ref={withdrawRef} className="tab">
+            Withdraw
+          </button>
         </div>
       </div>
 
@@ -83,7 +107,7 @@ const Balance = () => {
           />
 
           <button className="button" type="submit">
-            <span>Deposit</span>
+            <span>{isDeposit ? "Deposit" : "Withdraw"}</span>
           </button>
         </form>
       </div>
@@ -93,14 +117,43 @@ const Balance = () => {
       {/* Deposit/Withdraw Component 2 (mETH) */}
 
       <div className="exchange__transfers--form">
-        <div className="flex-between"></div>
+        <div className="flex-between">
+          <p>
+            <small>Token</small>
+            <br />
+            <img src={eth} alt="Token logo" />
+            {symbols && symbols[1]}
+          </p>
+          <p>
+            <small>Wallet</small>
+            <br />
+            {tokenBalances && tokenBalances[1]}
+          </p>
+          <p>
+            <small>Exchange</small>
+            <br />
+            {exchangeBalances && exchangeBalances[1]}
+          </p>
+        </div>
 
-        <form>
+        <form
+          onSubmit={(e) => {
+            depositHandler(e, tokens[1]);
+          }}
+        >
           <label htmlFor="token1"></label>
-          <input type="text" id="token1" placeholder="0.0000" />
+          <input
+            type="text"
+            id="token1"
+            placeholder="0.0000"
+            value={token1Amt === 0 ? "" : token1Amt}
+            onChange={(e) => {
+              amountHandler(e, tokens[1]);
+            }}
+          />
 
           <button className="button" type="submit">
-            <span></span>
+            <span>{isDeposit ? "Deposit" : "Withdraw"}</span>
           </button>
         </form>
       </div>
