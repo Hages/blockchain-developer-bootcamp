@@ -68,6 +68,10 @@ export const subscribeToEvents = (exchange, dispatch) => {
   exchange.on("Deposit", (_token, _user, _amount, _balance, event) => {
     dispatch(transferSuccess({ event }));
   });
+
+  exchange.on("Withdraw", (_token, _user, _amount, _balance, event) => {
+    dispatch(transferSuccess({ event }));
+  });
 };
 
 export const loadBalances = async (exchange, tokens, account, dispatch) => {
@@ -109,15 +113,26 @@ export const transferTokens = async (
     const signer = await provider.getSigner();
     const amountToTransfer = ethers.utils.parseUnits(amount.toString(), 18);
 
-    transaction = await token
-      .connect(signer)
-      .approve(exchange.address, amountToTransfer);
-    await transaction.wait();
+    console.log(transferType);
 
-    transaction = await exchange
-      .connect(signer)
-      .depositToken(token.address, amountToTransfer);
-    await transaction.wait();
+    if (transferType === "deposit") {
+      transaction = await token
+        .connect(signer)
+        .approve(exchange.address, amountToTransfer);
+      await transaction.wait();
+
+      transaction = await exchange
+        .connect(signer)
+        .depositToken(token.address, amountToTransfer);
+      await transaction.wait();
+    }
+
+    if (transferType === "withdraw") {
+      transaction = await exchange
+        .connect(signer)
+        .withdrawToken(token.address, amountToTransfer);
+      await transaction.wait();
+    }
   } catch (error) {
     console.log(error);
     dispatch(transferFail());

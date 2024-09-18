@@ -44,6 +44,32 @@ const Balance = () => {
     }
   };
 
+  const withdrawHandler = async (e, token) => {
+    e.preventDefault();
+    if (token.address === tokens[0].address) {
+      transferTokens(
+        provider,
+        exchange,
+        "withdraw",
+        token,
+        token0Amt,
+        dispatch
+      );
+      setToken0Amt(0);
+    }
+    if (token.address === tokens[1].address) {
+      transferTokens(
+        provider,
+        exchange,
+        "withdraw",
+        token,
+        token1Amt,
+        dispatch
+      );
+      setToken1Amt(0);
+    }
+  };
+
   const tabHandler = (e) => {
     depositRef.current.className = withdrawRef.current.className = "tab";
     e.target.className = "tab tab--active";
@@ -92,7 +118,9 @@ const Balance = () => {
 
         <form
           onSubmit={(e) => {
-            depositHandler(e, tokens[0]);
+            isDeposit
+              ? depositHandler(e, tokens[0])
+              : withdrawHandler(e, tokens[0]);
           }}
         >
           <label htmlFor="token0">{symbols && symbols[0]} Amount</label>
@@ -138,7 +166,9 @@ const Balance = () => {
 
         <form
           onSubmit={(e) => {
-            depositHandler(e, tokens[1]);
+            isDeposit
+              ? depositHandler(e, tokens[1])
+              : withdrawHandler(e, tokens[1]);
           }}
         >
           <label htmlFor="token1"></label>
