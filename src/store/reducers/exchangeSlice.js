@@ -6,6 +6,7 @@ export const exchangeSlice = createSlice({
     loaded: false,
     contracts: null,
     transaction: { isSuccessful: false },
+    allOrders: { loaded: false, data: [] },
     events: [],
   },
   reducers: {
@@ -63,6 +64,52 @@ export const exchangeSlice = createSlice({
         transferInProgress: false,
       };
     },
+
+    newOrderRequest: (state) => {
+      return {
+        ...state,
+        transaction: {
+          type: "New Order",
+          isPending: true,
+          isSuccessful: false,
+        },
+      };
+    },
+
+    newOrderSuccess: (state, action) => {
+      let index = state.allOrders.data.findIndex(
+        (order) => order._id === action.payload.order._id
+      );
+
+      return {
+        ...state,
+        allOrders: {
+          ...state.allOrders,
+          data:
+            index >= 0
+              ? [...state.allOrders.data]
+              : [...state.allOrders.data, action.payload.order],
+        },
+        transaction: {
+          type: "New Order",
+          isPending: false,
+          isSuccessful: true,
+        },
+        events: [action.payload.event, ...state.events],
+      };
+    },
+
+    newOrderFail: (state, action) => {
+      return {
+        ...state,
+        transaction: {
+          type: "New Order",
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+      };
+    },
   },
 });
 
@@ -72,6 +119,9 @@ export const {
   transferRequest,
   transferSuccess,
   transferFail,
+  newOrderRequest,
+  newOrderSuccess,
+  newOrderFail,
 } = exchangeSlice.actions;
 
 export default exchangeSlice.reducer;
