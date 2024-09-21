@@ -10,6 +10,9 @@ import {
 import { tokenLoaded, tokenBalanceLoaded } from "./reducers/tokenSlice";
 import {
   exchangeLoaded,
+  cancelledOrdersLoaded,
+  filledOrdersLoaded,
+  allOrdersLoaded,
   exchangeTokenBalanceLoaded,
   transferRequest,
   transferSuccess,
@@ -115,6 +118,22 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
     18
   );
   dispatch(exchangeTokenBalanceLoaded({ balance, append: true }));
+};
+
+export const loadAllOrders = async (provider, exchange, dispatch) => {
+  const block = await provider.getBlockNumber();
+
+  const cancelStream = await exchange.queryFilter("Cancel", 0, block);
+  const cancelledOrders = cancelStream.map((event) => event.args);
+  dispatch(cancelledOrdersLoaded({ cancelledOrders }));
+
+  const tradeStream = await exchange.queryFilter("Trade", 0, block);
+  const filledOrders = tradeStream.map((event) => event.args);
+  dispatch(filledOrdersLoaded({ filledOrders }));
+
+  const orderStream = await exchange.queryFilter("Order", 0, block);
+  const allOrders = orderStream.map((event) => event.args);
+  dispatch(allOrdersLoaded({ allOrders }));
 };
 
 export const transferTokens = async (

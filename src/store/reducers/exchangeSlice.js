@@ -18,6 +18,27 @@ export const exchangeSlice = createSlice({
       };
     },
 
+    cancelledOrdersLoaded: (state, action) => {
+      return {
+        ...state,
+        cancelledOrders: { loaded: true, data: action.payload.cancelledOrders },
+      };
+    },
+
+    filledOrdersLoaded: (state, action) => {
+      return {
+        ...state,
+        filledOrders: { loaded: true, data: action.payload.filledOrders },
+      };
+    },
+
+    allOrdersLoaded: (state, action) => {
+      return {
+        ...state,
+        allOrders: { loaded: true, data: action.payload.allOrders },
+      };
+    },
+
     exchangeTokenBalanceLoaded: (state, action) => {
       return {
         ...state,
@@ -78,7 +99,7 @@ export const exchangeSlice = createSlice({
 
     newOrderSuccess: (state, action) => {
       let index = state.allOrders.data.findIndex(
-        (order) => order._id === action.payload.order._id
+        (order) => order._id.toString() === action.payload.order._id.toString()
       );
 
       return {
@@ -115,6 +136,9 @@ export const exchangeSlice = createSlice({
 
 export const {
   exchangeLoaded,
+  cancelledOrdersLoaded,
+  filledOrdersLoaded,
+  allOrdersLoaded,
   exchangeTokenBalanceLoaded,
   transferRequest,
   transferSuccess,

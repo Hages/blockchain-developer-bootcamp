@@ -20,6 +20,8 @@ const store = configureStore({
           "tokens.contracts",
           "exchange.contracts",
           "exchange.events",
+          "exchange.cancelledOrders.data",
+          "exchange.filledOrders.data",
           "exchange.allOrders.data",
         ],
       },
