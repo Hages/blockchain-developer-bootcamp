@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { get, groupBy, reject } from "lodash";
+import { get, groupBy, reject, maxBy, minBy } from "lodash";
 import moment from "moment";
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
 
@@ -67,6 +67,28 @@ const decorateOrderBookOrder = (order, tokens) => {
   };
 };
 
+const buildGraphData = (orders) => {
+  orders = groupBy(orders, (order) =>
+    moment.unix(order._timestamp).startOf("hour").format()
+  );
+
+  const hours = Object.keys(orders);
+  const graphData = hours.map((hour) => {
+    const group = orders[hour];
+    const open = group[0];
+    const high = maxBy(group, "tokenPrice");
+    const low = minBy(group, "tokenPrice");
+    const close = group[group.length - 1];
+
+    return {
+      x: new Date(hour),
+      y: [open.tokenPrice, high.tokenPrice, low.tokenPrice, close.tokenPrice],
+    };
+  });
+
+  return graphData;
+};
+
 export const orderBookSelector = createDraftSafeSelector(
   openOrders,
   tokens,
@@ -103,5 +125,44 @@ export const orderBookSelector = createDraftSafeSelector(
     };
 
     return orders;
+  }
+);
+
+export const priceChartSelector = createDraftSafeSelector(
+  filledOrders,
+  tokens,
+  (orders, tokens) => {
+    if (!tokens[0] || !tokens[1]) return;
+
+    orders = orders.filter(
+      (o) =>
+        o._tokenGet === tokens[0].address || o._tokenGet === tokens[1].address
+    );
+    orders = orders.filter(
+      (o) =>
+        o._tokenGive === tokens[0].address || o._tokenGive === tokens[1].address
+    );
+
+    orders.sort((a, b) => b._timestamp - a._timestamp);
+
+    orders = orders.map((order) => {
+      order = decorateOrder(order, tokens);
+      return order;
+    });
+
+    let secondLastOrder, lastOrder;
+    [secondLastOrder, lastOrder] = orders.slice(
+      orders.length - 2,
+      orders.length
+    );
+
+    const secondLastPrice = get(secondLastOrder, "tokenPrice", 0);
+    const lastPrice = get(lastOrder, "tokenPrice", 0);
+
+    return {
+      lastPrice,
+      lastPriceChange: lastPrice >= secondLastPrice ? "+" : "-",
+      series: [{ data: buildGraphData(orders) }],
+    };
   }
 );
