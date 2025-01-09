@@ -16,6 +16,7 @@ import Markets from "./Markets";
 import Balance from "./Balance";
 import Order from "./Order";
 import PriceChart from "./PriceChart";
+import Transactions from "./Transactions";
 import Trades from "./Trades";
 import OrderBook from "./OrderBook";
 
@@ -67,7 +68,7 @@ function App() {
         <section className="exchange__section--right grid">
           <PriceChart />
 
-          {/* Transactions */}
+          <Transactions />
 
           <Trades />
 
