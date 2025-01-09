@@ -56,6 +56,36 @@ const decorateOrder = (order, tokens) => {
   };
 };
 
+const decorateFilledOrders = (orders, tokens) => {
+  let previousOrder = orders[0];
+
+  return (orders = orders.map((order) => {
+    order = decorateOrder(order, tokens);
+    order = decorateFilledOrder(order, previousOrder);
+    previousOrder = order;
+    return order;
+  }));
+};
+
+const decorateFilledOrder = (order, previousOrder) => {
+  return {
+    ...order,
+    color: tokenPriceColor(order.tokenPrice, order._id, previousOrder),
+  };
+};
+
+const tokenPriceColor = (tokenPrice, orderId, previousOrder) => {
+  if (previousOrder._id === orderId) {
+    return GREEN;
+  }
+
+  if (previousOrder.tokenPrice <= tokenPrice) {
+    return GREEN;
+  } else {
+    return RED;
+  }
+};
+
 const decorateOrderBookOrder = (order, tokens) => {
   const type = order._tokenGet === tokens[0].address ? "buy" : "sell";
 
@@ -88,6 +118,31 @@ const buildGraphData = (orders) => {
 
   return graphData;
 };
+
+export const filledOrdersSelector = createDraftSafeSelector(
+  filledOrders,
+  tokens,
+  (orders, tokens) => {
+    if (!tokens[0] || !tokens[1]) return;
+
+    orders = orders.filter(
+      (o) =>
+        o._tokenGet === tokens[0].address || o._tokenGet === tokens[1].address
+    );
+    orders = orders.filter(
+      (o) =>
+        o._tokenGive === tokens[0].address || o._tokenGive === tokens[1].address
+    );
+
+    orders.sort((a, b) => a._timestamp - b._timestamp);
+
+    orders = decorateFilledOrders(orders, tokens);
+
+    orders.sort((a, b) => b._timestamp - a._timestamp);
+
+    return orders;
+  }
+);
 
 export const orderBookSelector = createDraftSafeSelector(
   openOrders,
