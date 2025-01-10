@@ -131,6 +131,45 @@ export const exchangeSlice = createSlice({
         },
       };
     },
+
+    cancelOrderRequest: (state) => {
+      return {
+        ...state,
+        transaction: {
+          type: "Cancel",
+          isPending: true,
+          isSuccessful: false,
+        },
+      };
+    },
+
+    cancelOrderSuccess: (state, action) => {
+      return {
+        ...state,
+        cancelledOrders: {
+          ...state.cancelledOrders,
+          data: [...state.cancelledOrders.data, action.payload.order],
+        },
+        transaction: {
+          type: "Cancel",
+          isPending: false,
+          isSuccessful: true,
+        },
+        events: [action.payload.event, ...state.events],
+      };
+    },
+
+    cancelOrderFail: (state, action) => {
+      return {
+        ...state,
+        transaction: {
+          type: "Cancel",
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+      };
+    },
   },
 });
 
@@ -146,6 +185,9 @@ export const {
   newOrderRequest,
   newOrderSuccess,
   newOrderFail,
+  cancelOrderRequest,
+  cancelOrderSuccess,
+  cancelOrderFail,
 } = exchangeSlice.actions;
 
 export default exchangeSlice.reducer;

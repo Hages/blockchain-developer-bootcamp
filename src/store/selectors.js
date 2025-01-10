@@ -215,8 +215,6 @@ export const myFilledOrdersSelector = createDraftSafeSelector(
 
     orders = decorateMyFilledOrders(orders, account, tokens);
 
-    console.log(orders);
-
     return orders;
   }
 );
