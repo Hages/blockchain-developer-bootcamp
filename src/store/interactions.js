@@ -23,6 +23,9 @@ import {
   cancelOrderRequest,
   cancelOrderSuccess,
   cancelOrderFail,
+  fillOrderRequest,
+  fillOrderSuccess,
+  fillOrderFail,
 } from "./reducers/exchangeSlice";
 
 export const loadProvider = async (dispatch) => {
@@ -113,6 +116,24 @@ export const subscribeToEvents = (exchange, dispatch) => {
     ) => {
       const order = event.args;
       dispatch(cancelOrderSuccess({ order, event }));
+    }
+  );
+
+  exchange.on(
+    "Trade",
+    (
+      _id,
+      _user,
+      _tokenGet,
+      _amountGet,
+      _tokenGive,
+      _amountGive,
+      _creator,
+      _timestamp,
+      event
+    ) => {
+      const order = event.args;
+      dispatch(fillOrderSuccess({ order, event }));
     }
   );
 };
@@ -265,5 +286,17 @@ export const cancelOrder = async (provider, exchange, order, dispatch) => {
     await transaction.wait();
   } catch (error) {
     dispatch(cancelOrderFail());
+  }
+};
+
+export const fillOrder = async (provider, exchange, order, dispatch) => {
+  dispatch(fillOrderRequest());
+
+  try {
+    const signer = await provider.getSigner();
+    const transaction = await exchange.connect(signer).fillOrder(order._id);
+    await transaction.wait();
+  } catch (error) {
+    dispatch(fillOrderFail());
   }
 };

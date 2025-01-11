@@ -298,7 +298,7 @@ export const priceChartSelector = createDraftSafeSelector(
         o._tokenGive === tokens[0].address || o._tokenGive === tokens[1].address
     );
 
-    orders.sort((a, b) => b._timestamp - a._timestamp);
+    orders.sort((a, b) => a._timestamp - b._timestamp);
 
     orders = orders.map((order) => {
       order = decorateOrder(order, tokens);
