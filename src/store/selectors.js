@@ -8,6 +8,7 @@ const RED = "#F45353";
 
 const account = (state) => get(state, "provider.account");
 const tokens = (state) => get(state, "tokens.contracts");
+const events = (state) => get(state, "exchange.events");
 const allOrders = (state) => get(state, "exchange.allOrders.data", []);
 const cancelledOrders = (state) =>
   get(state, "exchange.cancelledOrders.data", []);
@@ -164,6 +165,16 @@ const buildGraphData = (orders) => {
 
   return graphData;
 };
+
+export const myEventsSelector = createDraftSafeSelector(
+  account,
+  events,
+  (account, events) => {
+    events = events.filter((e) => e.args._user === account);
+
+    return events;
+  }
+);
 
 export const myOpenOrdersSelector = createDraftSafeSelector(
   account,

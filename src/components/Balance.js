@@ -171,7 +171,7 @@ const Balance = () => {
               : withdrawHandler(e, tokens[1]);
           }}
         >
-          <label htmlFor="token1"></label>
+          <label htmlFor="token1">{symbols && symbols[1]} Amount</label>
           <input
             type="text"
             id="token1"
