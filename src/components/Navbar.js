@@ -17,11 +17,12 @@ const Navbar = () => {
   };
 
   const networkHandler = async (e) => {
-    console.log("networkHandler: " + e.target.value);
+    console.log("networkHandler", e.target.value);
     await window.ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: e.target.value }],
     });
+    window.location.reload();
   };
 
   return (
@@ -43,8 +44,8 @@ const Navbar = () => {
             <option value="0" disabled>
               Select Network
             </option>
-            <option value="0x7A69">Localhost</option>
-            <option value="0xe705">Linea Sepolia</option>
+            <option value="0x7a69">Localhost</option>
+            <option value="0xaa36a7">Sepolia</option>
           </select>
         )}
       </div>

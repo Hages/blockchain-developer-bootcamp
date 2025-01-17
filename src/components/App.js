@@ -28,9 +28,10 @@ function App() {
     const provider = await loadProvider(dispatch);
     const chainId = await loadNetwork(provider, dispatch);
 
-    window.ethereum.on("chainChanged", () => {
-      window.location.reload();
-    });
+    // window.ethereum.on("chainChanged", () => {
+    //   console.log("reload");
+    //   window.location.reload();
+    // });
 
     window.ethereum.on("accountsChanged", () => {
       loadAccount(provider, dispatch);
